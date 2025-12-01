@@ -1,0 +1,47 @@
+---
+description: "Core coding standards and principles for all Cadre development"
+alwaysApply: true
+---
+
+# Cadre Global Development Standards
+
+## Coding Philosophy
+
+- Prioritize clean, readable, self-documenting code
+- Optimize for maintainability, reliability, and impact
+- Apply modern, stable tooling (ES Modules, Python 3.11+)
+
+## Languages & Frameworks
+
+- **Languages:** TypeScript, Python, Bash
+- **Frameworks:** React, Node.js, Flask/FastAPI
+- **Styling:** Tailwind CSS
+- **Databases:** PostgreSQL > MySQL > MongoDB
+
+## Best Practices
+
+- DRY, KISS, YAGNI principles
+- Pure functions and immutability when possible
+- Validate and sanitize all user input
+- Use environment variables for secrets
+- Treat warnings as errors
+
+## Naming Conventions
+
+- **Files:** `lowercase_with_underscores`
+- **Variables:** `camelCase`
+- **Components/Classes:** `PascalCase`
+
+## Code Style
+
+- Max line length: 100 characters
+- Trailing commas for multi-line objects/arrays
+- ES Modules only (no `require`)
+- Prefer `async/await` over `.then()` chains
+- Explicit imports (no wildcards)
+
+## Git Conventions
+
+- Branch names: `{type}/{short-description}`
+- Commit format: `type(scope): short summary`
+- All work branches from `main`, squash merge

@@ -1,0 +1,75 @@
+---
+description: "Testing patterns and standards for Jest and Pytest"
+globs: ["**/*.test.*", "**/*.spec.*", "**/tests/**/*", "**/__tests__/**/*"]
+---
+
+# Testing Standards
+
+## Test Frameworks
+
+- **TypeScript/JavaScript:** Jest
+- **Python:** Pytest
+
+## Structure
+
+```
+src/utils/validator.ts
+__tests__/utils/validator.test.ts
+
+src/utils/validator.py
+tests/utils/test_validator.py
+```
+
+## Test Pattern (Arrange-Act-Assert)
+
+```typescript
+describe('functionName', () => {
+  it('should handle valid input', () => {
+    // Arrange
+    const input = 'valid';
+
+    // Act
+    const result = functionName(input);
+
+    // Assert
+    expect(result).toBe(expected);
+  });
+
+  it('should throw for invalid input', () => {
+    // Negative test
+    expect(() => functionName(null)).toThrow();
+  });
+});
+```
+
+```python
+class TestFunctionName:
+    def test_valid_input(self):
+        # Arrange
+        input_val = 'valid'
+
+        # Act
+        result = function_name(input_val)
+
+        # Assert
+        assert result == expected
+
+    def test_invalid_input_raises(self):
+        with pytest.raises(ValueError):
+            function_name(None)
+```
+
+## Requirements
+
+- At least one negative test per feature
+- Test edge cases and boundaries
+- Mock external dependencies
+- Tests must be independent
+- Use descriptive test names
+
+## Commands
+
+```bash
+npm run test    # JavaScript/TypeScript
+pytest -q       # Python
+```

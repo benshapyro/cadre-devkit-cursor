@@ -1,0 +1,63 @@
+---
+description: "Error handling patterns for TypeScript and Python"
+globs: ["**/*.ts", "**/*.tsx", "**/*.py"]
+---
+
+# Error Handling Patterns
+
+## TypeScript
+
+```typescript
+// Custom error class
+class ValidationError extends Error {
+  constructor(
+    message: string,
+    public field: string,
+  ) {
+    super(message);
+    this.name = 'ValidationError';
+  }
+}
+
+// Async error handling
+async function fetchData(): Promise<Data> {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return response.json();
+  } catch (error) {
+    logger.error('Fetch failed', { error });
+    throw error;
+  }
+}
+```
+
+## Python
+
+```python
+class ValidationError(Exception):
+    def __init__(self, message: str, field: str):
+        self.message = message
+        self.field = field
+        super().__init__(message)
+
+async def fetch_data() -> Data:
+    try:
+        response = await client.get(url)
+        response.raise_for_status()
+        return response.json()
+    except HTTPError as e:
+        logger.error(f"Fetch failed: {e}")
+        raise
+```
+
+## Principles
+
+- Use custom error classes for domain errors
+- Always log errors with context
+- Don't swallow errors silently
+- Provide user-friendly messages (hide internals)
+- Use try/catch at appropriate boundaries
+- Fail fast, fail clearly

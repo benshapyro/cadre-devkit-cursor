@@ -1,0 +1,61 @@
+---
+description: "Documentation templates and standards for READMEs and API docs"
+globs: ["**/*.md", "**/README*", "**/docs/**/*"]
+---
+
+# Documentation Standards
+
+## README Structure
+
+```markdown
+# Project Name
+
+Brief description of what this project does.
+
+## Installation
+
+\`\`\`bash
+npm install  # or pip install -r requirements.txt
+\`\`\`
+
+## Usage
+
+\`\`\`typescript
+import { feature } from 'project';
+feature.doSomething();
+\`\`\`
+
+## Configuration
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `API_KEY` | Your API key | - |
+
+## Development
+
+\`\`\`bash
+npm run dev    # Start dev server
+npm run test   # Run tests
+npm run build  # Build for production
+\`\`\`
+
+## License
+
+MIT
+```
+
+## API Documentation
+
+Document endpoints with:
+- HTTP method and path
+- Request body schema
+- Response schema
+- Error responses
+- Authentication requirements
+
+## Code Comments
+
+- Only comment non-obvious logic
+- Explain "why" not "what"
+- Keep comments updated with code
+- Use JSDoc/docstrings for public APIs

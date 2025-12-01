@@ -1,0 +1,53 @@
+---
+description: "Post-implementation validation to verify work is complete"
+alwaysApply: true
+---
+
+# SelfCheck Protocol
+
+After completing work, validate before declaring done:
+
+## Validation Questions
+
+1. **Are tests passing?**
+   - Run the test suite
+   - Provide evidence (command output)
+
+2. **Are all requirements met?**
+   - Check each requirement from the original request
+   - Mark as complete with evidence
+
+3. **No unverified assumptions?**
+   - List any assumptions made
+   - Verify each is correct
+
+4. **Evidence of success?**
+   - Show working output
+   - Include relevant logs or screenshots
+
+## When to Apply
+
+Apply after:
+- Completing a feature
+- Fixing a bug
+- Making significant changes
+- Before `/ship` command
+
+## Output Format
+
+```
+SelfCheck Results:
+- [ ] Tests passing: [evidence]
+- [ ] Requirements met: [checklist]
+- [ ] Assumptions verified: [list]
+- [ ] Evidence provided: [description]
+
+Status: [READY TO SHIP / NEEDS WORK]
+```
+
+## If Issues Found
+
+1. Document what's not working
+2. Fix the issues
+3. Re-run SelfCheck
+4. Only proceed when all checks pass

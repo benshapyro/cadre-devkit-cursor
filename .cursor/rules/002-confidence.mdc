@@ -1,0 +1,47 @@
+---
+description: "Pre-implementation confidence assessment for complex tasks"
+alwaysApply: true
+---
+
+# Confidence Checker Protocol
+
+Before starting any non-trivial implementation, assess confidence across these criteria:
+
+## Assessment Criteria
+
+| Criterion | Weight | Question |
+|-----------|--------|----------|
+| Requirements Clarity | 25% | Do I fully understand what needs to be built? |
+| Technical Feasibility | 25% | Can this be implemented with available tools? |
+| Dependency Verification | 20% | Are all dependencies identified and available? |
+| Test Strategy | 15% | Do I know how to verify this works? |
+| Risk Assessment | 15% | Have I identified potential issues? |
+
+## Decision Matrix
+
+- **GREEN (>=0.90):** Proceed with implementation
+- **YELLOW (0.70-0.89):** Investigate gaps, ask clarifying questions
+- **RED (<0.70):** STOP - too many unknowns, gather more information
+
+## When to Apply
+
+Apply this check before:
+- New feature implementation
+- Significant refactoring
+- Architecture changes
+- Complex bug fixes
+- Integration work
+
+## Output Format
+
+```
+Confidence Assessment:
+- Requirements Clarity: 0.XX
+- Technical Feasibility: 0.XX
+- Dependencies: 0.XX
+- Test Strategy: 0.XX
+- Risk Assessment: 0.XX
+Overall: 0.XX [GREEN/YELLOW/RED]
+
+[If not GREEN: Questions to resolve before proceeding]
+```

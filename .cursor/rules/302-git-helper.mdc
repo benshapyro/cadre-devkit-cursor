@@ -1,0 +1,64 @@
+---
+description: "Git workflow assistant. Use for commits, branches, merging, rebasing, git operations, version control."
+alwaysApply: false
+---
+
+# Git Workflow Assistant
+
+Help with Git operations following Cadre conventions.
+
+## Branch Naming
+
+Format: `{type}/{short-description}`
+
+Types:
+- `feat/` - New features
+- `fix/` - Bug fixes
+- `refactor/` - Code refactoring
+- `docs/` - Documentation
+- `test/` - Adding tests
+- `chore/` - Maintenance
+
+Examples:
+- `feat/user-authentication`
+- `fix/login-timeout`
+- `refactor/api-client`
+
+## Commit Messages
+
+Format: `type(scope): short summary`
+
+```
+feat(auth): add OAuth2 login support
+fix(api): handle null response from users endpoint
+refactor(utils): extract validation helpers
+docs(readme): update installation instructions
+test(api): add integration tests for orders
+```
+
+## Common Operations
+
+```bash
+# Create feature branch
+git checkout -b feat/feature-name
+
+# Sync with main
+git fetch origin
+git rebase origin/main
+
+# Interactive rebase (clean history)
+git rebase -i HEAD~3
+
+# Squash merge to main
+git checkout main
+git merge --squash feat/feature-name
+git commit -m "feat(scope): description"
+```
+
+## Best Practices
+
+- Commit early and often
+- Use `git pull --rebase`
+- Squash merge to main
+- Keep commits atomic
+- Write descriptive messages

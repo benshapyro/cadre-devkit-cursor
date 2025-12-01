@@ -1,0 +1,63 @@
+---
+description: "REST and GraphQL API design patterns and best practices"
+globs: ["**/api/**/*", "**/routes/**/*", "**/endpoints/**/*", "**/controllers/**/*"]
+---
+
+# API Design Patterns
+
+## URL Structure
+
+```
+GET    /api/v1/users              # List
+GET    /api/v1/users/:id          # Get one
+POST   /api/v1/users              # Create
+PUT    /api/v1/users/:id          # Update (full)
+PATCH  /api/v1/users/:id          # Update (partial)
+DELETE /api/v1/users/:id          # Delete
+GET    /api/v1/users/:id/posts    # Nested resource
+```
+
+## HTTP Status Codes
+
+| Code | When to Use |
+|------|-------------|
+| 200 | Success (GET, PUT, PATCH) |
+| 201 | Resource created (POST) |
+| 204 | Success, no body (DELETE) |
+| 400 | Invalid input |
+| 401 | Not authenticated |
+| 403 | Not authorized |
+| 404 | Not found |
+| 422 | Validation failed |
+| 429 | Rate limit exceeded |
+| 500 | Server error |
+
+## Response Format
+
+```json
+{
+  "data": { "id": "123", "name": "Example" },
+  "meta": { "timestamp": "2025-01-01T00:00:00Z" }
+}
+```
+
+## Error Format
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid input",
+    "details": [{ "field": "email", "message": "Invalid format" }]
+  }
+}
+```
+
+## Rules
+
+- Use plural nouns for collections (`/users` not `/user`)
+- No verbs in URLs (`/users` not `/getUsers`)
+- Max 2 levels of nesting
+- Always validate inputs with schemas (Zod, Pydantic)
+- Implement pagination for lists
+- Version your APIs (`/api/v1/`)
