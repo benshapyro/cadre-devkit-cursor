@@ -12,12 +12,22 @@ FILE_PATH=$(echo "$INPUT" | grep -o '"file_path"[[:space:]]*:[[:space:]]*"[^"]*"
 # Default to allow
 PERMISSION="allow"
 
+# ALLOW example/sample/template files - these don't contain real secrets
+if echo "$FILE_PATH" | grep -qiE "\.(example|sample|template|dist)$"; then
+    cat << EOF
+{
+  "permission": "allow"
+}
+EOF
+    exit 0
+fi
+
 # Check if file matches sensitive patterns
-if echo "$FILE_PATH" | grep -qiE "\.env($|\.)"; then
+if echo "$FILE_PATH" | grep -qiE "\.env($|\.)[^.]*$"; then
     PERMISSION="deny"
 elif echo "$FILE_PATH" | grep -qiE "(credentials|secrets|\.pem|\.key|\.p12|\.pfx)$"; then
     PERMISSION="deny"
-elif echo "$FILE_PATH" | grep -qiE "id_(rsa|ed25519|dsa)($|\.pub)"; then
+elif echo "$FILE_PATH" | grep -qiE "id_(rsa|ed25519|dsa|ecdsa)$"; then
     PERMISSION="deny"
 elif echo "$FILE_PATH" | grep -qiE "\.ssh/config|\.aws/credentials|\.gcloud/|\.azure/"; then
     PERMISSION="deny"

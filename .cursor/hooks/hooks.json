@@ -6,6 +6,9 @@
     ],
     "beforeTabFileRead": [
       { "command": "./security/sensitive-file-guard.sh" }
+    ],
+    "afterFileEdit": [
+      { "command": "./formatting/auto-format.sh" }
     ]
   }
 }

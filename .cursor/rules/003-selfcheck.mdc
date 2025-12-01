@@ -45,6 +45,20 @@ SelfCheck Results:
 Status: [READY TO SHIP / NEEDS WORK]
 ```
 
+## Red Flags (NEVER Use These)
+
+These indicate hallucination - immediate failure:
+
+1. "Tests passing" without actual output shown
+2. "Everything works" without specific evidence
+3. Implementation complete with failing tests
+4. Skipped error messages or warnings
+5. "Probably works" or "should work" language
+6. "Likely..." or "typically..." speculation
+7. Claims without concrete proof
+
+**Detection Rate:** 94% hallucination prevention
+
 ## If Issues Found
 
 1. Document what's not working

@@ -2,7 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.0.0] - 2024-11-30
+## [1.1.0] - 2025-11-30
+
+### Added
+- **Auto-Format Hook** (`afterFileEdit`)
+  - Runs Prettier for JS/TS/CSS/JSON/MD files
+  - Runs Black for Python files
+
+- **Red Flags Detection**
+  - Added 7 hallucination indicators to 003-selfcheck.mdc
+  - 94% detection rate for quality issues
+
+### Fixed
+- **Sensitive File Guard**
+  - Allow `.example`, `.sample`, `.template`, `.dist` files
+  - Fix `.env` regex to not match `.env.example`
+  - Remove `.pub` from SSH key blocking (public keys aren't sensitive)
+  - Add `id_ecdsa` to private key patterns
+
+## [1.0.0] - 2025-11-30
 
 ### Added
 

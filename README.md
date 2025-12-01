@@ -48,10 +48,15 @@ Invoke commands with `@command-name` in the chat:
 
 ### Hooks (`.cursor/hooks/`)
 
-Security hooks using Cursor's lifecycle hook system (v1.7+):
+Hooks using Cursor's lifecycle hook system (v1.7+):
 
+**Security (before events)**
 - **beforeShellExecution** - Blocks destructive shell commands (rm -rf, force push, etc.)
 - **beforeTabFileRead** - Prevents Tab from reading sensitive files (.env, credentials, keys)
+  - Allows `.example`, `.sample`, `.template` files
+
+**Automation (after events)**
+- **afterFileEdit** - Runs Prettier/Black to auto-format edited files
 
 Hooks receive JSON via stdin and return JSON permission responses.
 
