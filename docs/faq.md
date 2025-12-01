@@ -84,20 +84,29 @@ Instructions for the AI...
 ### Q: Hooks aren't running
 
 Check:
-1. `hooks.json` is valid JSON
+1. `hooks.json` has `"version": 1` at top level
 2. Script files are executable (`chmod +x`)
-3. Script paths are correct
+3. Script paths are relative to `hooks.json` location
+4. Scripts output valid JSON to stdout
 
 ### Q: How do I debug hooks?
 
-Add echo statements and check Cursor's output panel:
+Write debug info to a file (stderr goes nowhere):
 ```bash
-echo "DEBUG: Command = $CURSOR_COMMAND" >&2
+echo "$INPUT" >> /tmp/hook-debug.log
 ```
 
-### Q: Can hooks run on file save?
+Or check Cursor's Developer Tools (Help > Toggle Developer Tools).
 
-Use `afterFileEdit` event, but note it cannot block.
+### Q: Can hooks block file writes?
+
+No. `afterFileEdit` runs after edits complete. For blocking, consider:
+- Using `beforeShellExecution` to block dangerous commands
+- Using `beforeTabFileRead` to prevent Tab from reading sensitive files
+
+### Q: My hook returns "deny" but command still runs
+
+Known issue: Cursor's allow-list can override hook permissions. If a command is in your allow-list, the hook's "deny" may not work. See [bug report](https://forum.cursor.com/t/beforeshellexecution-hook-permissions-allow-ask-ignored-allow-list-takes-precedence/144244).
 
 ## Workflow
 

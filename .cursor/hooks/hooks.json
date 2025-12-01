@@ -1,30 +1,11 @@
 {
-  "$schema": "https://cursor.sh/schemas/hooks.json",
-  "version": "1.0",
+  "version": 1,
   "hooks": {
     "beforeShellExecution": [
-      {
-        "name": "dangerous-command-blocker",
-        "description": "Block dangerous shell commands",
-        "script": "./security/dangerous-command-blocker.sh",
-        "canBlock": true
-      }
+      { "command": "./security/dangerous-command-blocker.sh" }
     ],
-    "beforeReadFile": [
-      {
-        "name": "sensitive-file-guard",
-        "description": "Warn when accessing sensitive files",
-        "script": "./security/sensitive-file-guard.sh",
-        "canBlock": true
-      }
-    ],
-    "beforeWriteFile": [
-      {
-        "name": "sensitive-file-guard",
-        "description": "Block writes to sensitive files",
-        "script": "./security/sensitive-file-guard.sh",
-        "canBlock": true
-      }
+    "beforeTabFileRead": [
+      { "command": "./security/sensitive-file-guard.sh" }
     ]
   }
 }

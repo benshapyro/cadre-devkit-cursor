@@ -134,42 +134,70 @@ Commit workflow:
 
 ## Hooks
 
-Security hooks that intercept dangerous operations.
+Cursor hooks (v1.7+) intercept agent actions at defined lifecycle points.
 
 ### hooks.json
 
-Configuration file that maps events to scripts:
+Configuration file with version and hook definitions:
 
 ```json
 {
-  "beforeShellExecution": [...],
-  "beforeReadFile": [...],
-  "beforeWriteFile": [...]
+  "version": 1,
+  "hooks": {
+    "beforeShellExecution": [
+      { "command": "./security/dangerous-command-blocker.sh" }
+    ],
+    "beforeTabFileRead": [
+      { "command": "./security/sensitive-file-guard.sh" }
+    ]
+  }
+}
+```
+
+### Hook Input/Output
+
+Hooks receive JSON via stdin and return JSON via stdout:
+
+**beforeShellExecution input:**
+```json
+{
+  "command": "rm -rf /tmp/test",
+  "cwd": "/home/user/project",
+  "conversation_id": "...",
+  "generation_id": "..."
+}
+```
+
+**beforeShellExecution output:**
+```json
+{
+  "permission": "allow",  // or "deny" or "ask"
+  "agent_message": "Optional message to the AI"
 }
 ```
 
 ### dangerous-command-blocker.sh
 
-Blocks:
+**Blocks (permission: deny):**
 - `rm -rf /` and variants
 - Fork bombs
 - Disk formatting commands
 - Force pushes to main/master
 - SQL destructive commands
+- Piping curl/wget to shell
 
-Warns:
-- `rm -rf` (non-root)
+**Warns (permission: ask):**
+- `rm -rf` (non-root paths)
 - `git reset --hard`
-- `DROP` statements
+- `npm publish`
 
 ### sensitive-file-guard.sh
 
-Protects:
+**Blocks Tab from reading:**
 - `.env` files (all variants)
-- SSH keys
+- SSH keys (`id_rsa`, `id_ed25519`)
 - Cloud credentials (AWS, GCP, Azure)
 - API tokens and secrets
 - Kubernetes configs
 
-Read operations are warned but allowed.
-Write operations to sensitive files are blocked.
+Note: This only affects Tab completions (`beforeTabFileRead`). Agent file reads are not blocked by default.

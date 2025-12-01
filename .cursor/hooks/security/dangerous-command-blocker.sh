@@ -2,68 +2,51 @@
 # Dangerous Command Blocker for Cursor
 # Blocks potentially destructive shell commands
 #
-# Input: CURSOR_COMMAND environment variable contains the command to execute
-# Output: Exit 0 to allow, exit 1 to block
+# Input: JSON via stdin with { "command": "...", "cwd": "..." }
+# Output: JSON with { "permission": "allow|deny|ask", "agent_message": "..." }
 
-COMMAND="${CURSOR_COMMAND:-$1}"
+# Read JSON input from stdin
+INPUT=$(cat)
+COMMAND=$(echo "$INPUT" | grep -o '"command"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/"command"[[:space:]]*:[[:space:]]*"//' | sed 's/"$//')
+
+# Default to allow
+PERMISSION="allow"
+AGENT_MESSAGE=""
 
 # Patterns that should be blocked
-DANGEROUS_PATTERNS=(
-    "rm -rf /"
-    "rm -rf /*"
-    "rm -rf ~"
-    "rm -rf \$HOME"
-    ":(){:|:&};:"           # Fork bomb
-    "mkfs"
-    "dd if=/dev/zero"
-    "dd if=/dev/random"
-    "> /dev/sda"
-    "chmod -R 777 /"
-    "chown -R"
-    "curl.*|.*sh"           # Pipe curl to shell
-    "wget.*|.*sh"           # Pipe wget to shell
-    "curl.*|.*bash"
-    "wget.*|.*bash"
-    "--no-preserve-root"
-    "sudo rm -rf"
-    "git push.*--force.*main"
-    "git push.*--force.*master"
-    "git push -f.*main"
-    "git push -f.*master"
-    "DROP DATABASE"
-    "DROP TABLE"
-    "TRUNCATE"
-    "DELETE FROM.*WHERE 1"
-    "npm publish"           # Prevent accidental publishing
-    "pip upload"
-)
+if echo "$COMMAND" | grep -qiE "rm -rf /($|[^a-zA-Z])|rm -rf /\*|rm -rf ~|rm -rf \\\$HOME"; then
+    PERMISSION="deny"
+    AGENT_MESSAGE="BLOCKED: This command could delete critical system files. Use a safer, more targeted approach."
+elif echo "$COMMAND" | grep -qiE ":\(\)\{:\|:&\};:"; then
+    PERMISSION="deny"
+    AGENT_MESSAGE="BLOCKED: Fork bomb detected. This would crash the system."
+elif echo "$COMMAND" | grep -qiE "mkfs\.|dd if=/dev/(zero|random)"; then
+    PERMISSION="deny"
+    AGENT_MESSAGE="BLOCKED: Disk formatting/overwriting commands are not allowed."
+elif echo "$COMMAND" | grep -qiE "chmod -R 777 /|chown -R .* /"; then
+    PERMISSION="deny"
+    AGENT_MESSAGE="BLOCKED: Recursive permission changes on root are dangerous."
+elif echo "$COMMAND" | grep -qiE "(curl|wget).*\|.*(sh|bash)"; then
+    PERMISSION="deny"
+    AGENT_MESSAGE="BLOCKED: Piping remote scripts directly to shell is a security risk. Download and review first."
+elif echo "$COMMAND" | grep -qiE "git push.*(--force|-f).*(main|master)"; then
+    PERMISSION="deny"
+    AGENT_MESSAGE="BLOCKED: Force pushing to main/master could overwrite team history. Use a feature branch."
+elif echo "$COMMAND" | grep -qiE "DROP (DATABASE|TABLE)|TRUNCATE|DELETE FROM.*WHERE 1"; then
+    PERMISSION="deny"
+    AGENT_MESSAGE="BLOCKED: Destructive SQL commands detected. Review and run manually if intended."
+elif echo "$COMMAND" | grep -qiE "npm publish|pip upload"; then
+    PERMISSION="ask"
+    AGENT_MESSAGE="WARNING: Package publishing detected. Please confirm this is intentional."
+elif echo "$COMMAND" | grep -qiE "rm -rf|git reset --hard|git clean -fd"; then
+    PERMISSION="ask"
+    AGENT_MESSAGE="WARNING: Potentially destructive command. Please review before proceeding."
+fi
 
-# Check against dangerous patterns
-for pattern in "${DANGEROUS_PATTERNS[@]}"; do
-    if echo "$COMMAND" | grep -qiE "$pattern"; then
-        echo "BLOCKED: Command matches dangerous pattern: $pattern"
-        echo "Command: $COMMAND"
-        exit 1
-    fi
-done
-
-# Warn about potentially risky commands (but allow)
-WARN_PATTERNS=(
-    "rm -rf"
-    "git reset --hard"
-    "git clean -fd"
-    "DROP"
-    "DELETE FROM"
-)
-
-for pattern in "${WARN_PATTERNS[@]}"; do
-    if echo "$COMMAND" | grep -qiE "$pattern"; then
-        echo "WARNING: Potentially risky command detected"
-        echo "Pattern: $pattern"
-        echo "Command: $COMMAND"
-        # Allow but warn - exit 0 means allowed
-    fi
-done
-
-# Allow the command
-exit 0
+# Output JSON response
+cat << EOF
+{
+  "permission": "$PERMISSION",
+  "agent_message": "$AGENT_MESSAGE"
+}
+EOF

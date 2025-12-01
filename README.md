@@ -48,10 +48,12 @@ Invoke commands with `@command-name` in the chat:
 
 ### Hooks (`.cursor/hooks/`)
 
-Security hooks that protect against dangerous operations:
+Security hooks using Cursor's lifecycle hook system (v1.7+):
 
-- **dangerous-command-blocker** - Blocks destructive shell commands
-- **sensitive-file-guard** - Protects credentials and secrets
+- **beforeShellExecution** - Blocks destructive shell commands (rm -rf, force push, etc.)
+- **beforeTabFileRead** - Prevents Tab from reading sensitive files (.env, credentials, keys)
+
+Hooks receive JSON via stdin and return JSON permission responses.
 
 ## Workflow
 
@@ -98,18 +100,22 @@ alwaysApply: false  # Only apply when relevant
 
 ### Customize Hooks
 
-Edit `hooks.json` to add or remove hook triggers:
+Edit `hooks.json` to add hook triggers. Cursor hooks use a simple format:
 ```json
 {
-  "beforeShellExecution": [
-    {
-      "name": "custom-hook",
-      "script": "./custom/hook.sh",
-      "canBlock": true
-    }
-  ]
+  "version": 1,
+  "hooks": {
+    "beforeShellExecution": [
+      { "command": "./my-hook.sh" }
+    ],
+    "afterFileEdit": [
+      { "command": "./format-code.sh" }
+    ]
+  }
 }
 ```
+
+Hooks receive JSON via stdin and return JSON responses. See [Cursor Hooks Docs](https://cursor.com/docs/agent/hooks).
 
 ## Documentation
 

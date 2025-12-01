@@ -1,63 +1,39 @@
 #!/bin/bash
 # Sensitive File Guard for Cursor
-# Protects sensitive files from accidental access or modification
+# Protects sensitive files from being read by Tab completions
 #
-# Input: CURSOR_FILE_PATH environment variable contains the file path
-# Output: Exit 0 to allow, exit 1 to block
+# Input: JSON via stdin with { "file_path": "...", "content": "..." }
+# Output: JSON with { "permission": "allow|deny" }
 
-FILE_PATH="${CURSOR_FILE_PATH:-$1}"
-OPERATION="${CURSOR_OPERATION:-read}"  # read or write
+# Read JSON input from stdin
+INPUT=$(cat)
+FILE_PATH=$(echo "$INPUT" | grep -o '"file_path"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/"file_path"[[:space:]]*:[[:space:]]*"//' | sed 's/"$//')
 
-# Sensitive file patterns that should be protected
-SENSITIVE_PATTERNS=(
-    "\.env$"
-    "\.env\."
-    "\.env\.local"
-    "\.env\.production"
-    "\.env\.development"
-    "credentials"
-    "secrets"
-    "\.pem$"
-    "\.key$"
-    "\.p12$"
-    "\.pfx$"
-    "id_rsa"
-    "id_ed25519"
-    "id_dsa"
-    "\.ssh/config"
-    "\.aws/credentials"
-    "\.gcloud/"
-    "\.azure/"
-    "service.*account.*\.json"
-    "firebase.*\.json"
-    "google.*credentials.*\.json"
-    "\.npmrc"
-    "\.pypirc"
-    "\.netrc"
-    "htpasswd"
-    "shadow$"
-    "passwd$"
-    "\.kube/config"
-    "kubeconfig"
-)
+# Default to allow
+PERMISSION="allow"
 
 # Check if file matches sensitive patterns
-for pattern in "${SENSITIVE_PATTERNS[@]}"; do
-    if echo "$FILE_PATH" | grep -qiE "$pattern"; then
-        if [ "$OPERATION" = "write" ]; then
-            echo "BLOCKED: Cannot write to sensitive file"
-            echo "File: $FILE_PATH"
-            echo "Pattern matched: $pattern"
-            exit 1
-        else
-            echo "WARNING: Accessing sensitive file"
-            echo "File: $FILE_PATH"
-            echo "Pattern matched: $pattern"
-            # Allow read but warn
-            exit 0
-        fi
-    fi
-done
+if echo "$FILE_PATH" | grep -qiE "\.env($|\.)"; then
+    PERMISSION="deny"
+elif echo "$FILE_PATH" | grep -qiE "(credentials|secrets|\.pem|\.key|\.p12|\.pfx)$"; then
+    PERMISSION="deny"
+elif echo "$FILE_PATH" | grep -qiE "id_(rsa|ed25519|dsa)($|\.pub)"; then
+    PERMISSION="deny"
+elif echo "$FILE_PATH" | grep -qiE "\.ssh/config|\.aws/credentials|\.gcloud/|\.azure/"; then
+    PERMISSION="deny"
+elif echo "$FILE_PATH" | grep -qiE "service.*account.*\.json|firebase.*\.json|google.*credentials"; then
+    PERMISSION="deny"
+elif echo "$FILE_PATH" | grep -qiE "\.(npmrc|pypirc|netrc)$"; then
+    PERMISSION="deny"
+elif echo "$FILE_PATH" | grep -qiE "htpasswd|shadow$|passwd$"; then
+    PERMISSION="deny"
+elif echo "$FILE_PATH" | grep -qiE "\.kube/config|kubeconfig"; then
+    PERMISSION="deny"
+fi
 
-# Allow access
-exit 0
+# Output JSON response
+cat << EOF
+{
+  "permission": "$PERMISSION"
+}
+EOF

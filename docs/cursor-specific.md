@@ -106,26 +106,55 @@ When multiple rules could apply:
 
 ## Hooks System
 
+Cursor hooks (introduced in v1.7) let you run scripts at agent lifecycle points.
+
 ### Supported Events
 
 | Event | Can Block | Use Case |
 |-------|-----------|----------|
 | beforeShellExecution | Yes | Block dangerous commands |
-| beforeReadFile | Yes | Protect sensitive files |
-| beforeWriteFile | Yes | Prevent bad edits |
-| afterFileEdit | No | Logging, validation |
+| beforeMCPExecution | Yes | Control MCP tool calls |
+| beforeTabFileRead | Yes | Protect sensitive files from Tab |
+| beforeSubmitPrompt | Yes | Filter prompts |
+| afterFileEdit | No | Format code, logging |
+| afterShellExecution | No | Audit commands |
+| stop | No | Trigger follow-ups |
 
-### Hook Scripts
+### Hook I/O Format
 
-Hooks receive context via environment variables:
-- `CURSOR_COMMAND` - Shell command being executed
-- `CURSOR_FILE_PATH` - File being accessed
-- `CURSOR_OPERATION` - read/write operation type
+Hooks receive JSON via **stdin** (not environment variables):
 
-### Blocking vs Warning
+```json
+{
+  "command": "npm install",
+  "cwd": "/path/to/project",
+  "conversation_id": "uuid",
+  "generation_id": "uuid"
+}
+```
 
-- Exit code 0 = Allow (with optional warning)
-- Exit code 1 = Block operation
+Hooks return JSON via **stdout**:
+
+```json
+{
+  "permission": "allow",
+  "agent_message": "Proceeding with install"
+}
+```
+
+### Permission Values
+
+| Value | Effect |
+|-------|--------|
+| `"allow"` | Execute without prompting |
+| `"deny"` | Block and send agent_message to AI |
+| `"ask"` | Prompt user for confirmation |
+
+### Known Limitations
+
+- Multiple hooks in same array may only execute first one ([bug report](https://forum.cursor.com/t/cursor-hooks-bug-multiple-hooks-in-array-only-execute-first-hook/141996))
+- `beforeShellExecution` allow-list can override hook permissions
+- Hooks are still in beta - API may change
 
 ## Keyboard Shortcuts
 
