@@ -1,24 +1,27 @@
+---
+description: Review code changes for quality and best practices
+allowed-tools: Read, Grep, Glob, Bash(git:*)
+---
+
 # Review Command
+
+**Purpose:** Qualitative code review - checks code quality, style, security, and best practices.
+
+**Distinct from /validate:** This command does human-like code review. Use `/validate` for automated checks (types, lint, tests, build).
+
+**Workflow:** `/review` → `/validate` → `/ship`
 
 Review current code changes against project standards.
 
-## Usage
-
-Invoke with `@review`
-
 ## Gather Changes
 
-First, examine what has changed:
+**Get staged and unstaged changes:**
+!`git diff --name-only`
+!`git diff --staged --name-only`
 
-```bash
-# Get changed files
-git diff --name-only
-git diff --staged --name-only
-
-# Get full diff
-git diff
-git diff --staged
-```
+**Get full diff:**
+!`git diff`
+!`git diff --staged`
 
 ## Review Checklist
 
@@ -59,7 +62,7 @@ For each changed file, check:
 
 ## Report Format
 
-```markdown
+```
 ## Code Review Summary
 
 ### Files Reviewed
@@ -83,5 +86,5 @@ For each changed file, check:
 
 ## Next Steps
 
-- If approved: `@validate` then `@ship`
-- If changes needed: Fix issues and re-run `@review`
+- If approved: `/validate` then `/ship`
+- If changes needed: Fix issues and re-run `/review`

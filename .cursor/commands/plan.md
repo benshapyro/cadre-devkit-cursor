@@ -1,10 +1,13 @@
+---
+description: Start a new feature with proper planning
+argument-hint: [feature description]
+---
+
 # Plan Command
 
 Plan a new feature or task with proper structure before implementation.
 
-## Usage
-
-Invoke with `@plan [feature description]`
+## Validation
 
 If no feature description provided, ask for one.
 
@@ -13,7 +16,7 @@ If no feature description provided, ask for one.
 ### 1. Gather Context
 
 Before planning, understand the codebase:
-- Read relevant README and documentation files
+- Read relevant CLAUDE.md files
 - Identify existing patterns and conventions
 - Understand related code and dependencies
 
@@ -30,7 +33,7 @@ Ask clarifying questions if needed:
 Structure the implementation:
 
 **Output Format:**
-```markdown
+```
 ## Feature: [description]
 
 ### Requirements
@@ -54,28 +57,21 @@ Structure the implementation:
 ### Risks
 - [potential issues and mitigations]
 
-### Complexity
-- [low/medium/high]
+### Estimate
+- Complexity: [low/medium/high]
 ```
 
 ### 4. Confidence Check
 
-Before proceeding, ensure:
-- All requirements are understood
-- No assumptions remain unverified
-- Technical approach is sound
+Run Pre-Implementation Confidence Check before proceeding.
 
 ### 5. Await Approval
 
 Present plan and wait for user approval before implementation.
 
-## Tip: Use Plan Mode
-
-For complex planning, use Cursor's native Plan Mode (Shift+Tab) to get structured planning with checkpoints.
-
 ## Next Steps
 
 After approval:
-- Use `@review` for code review
-- Use `@validate` to verify before completion
-- Use `@ship` when ready to commit
+- Start implementation with `/review` for code review
+- Use `/validate` to verify before completion
+- Use `/ship` when ready to commit

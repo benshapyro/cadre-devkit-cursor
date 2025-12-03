@@ -1,49 +1,63 @@
 #!/bin/bash
 # Sensitive File Guard for Cursor
-# Protects sensitive files from being read by Tab completions
+# Prevents reading sensitive files like .env, credentials, keys
 #
-# Input: JSON via stdin with { "file_path": "...", "content": "..." }
-# Output: JSON with { "permission": "allow|deny" }
+# Input: JSON via stdin with { "path": "..." }
+# Output: JSON with { "permission": "allow|deny", "agent_message": "..." }
+#
+# Debug: Set CURSOR_HOOK_DEBUG=1 to enable verbose logging
+
+DEBUG="${CURSOR_HOOK_DEBUG:-0}"
+
+debug() {
+    if [ "$DEBUG" = "1" ]; then
+        echo "[sensitive-file-guard] $1" >&2
+    fi
+}
 
 # Read JSON input from stdin
 INPUT=$(cat)
-FILE_PATH=$(echo "$INPUT" | grep -o '"file_path"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/"file_path"[[:space:]]*:[[:space:]]*"//' | sed 's/"$//')
+FILE_PATH=$(echo "$INPUT" | grep -o '"path"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/"path"[[:space:]]*:[[:space:]]*"//' | sed 's/"$//')
+
+debug "Checking file: $FILE_PATH"
 
 # Default to allow
 PERMISSION="allow"
+AGENT_MESSAGE=""
 
-# ALLOW example/sample/template files - these don't contain real secrets
-if echo "$FILE_PATH" | grep -qiE "\.(example|sample|template|dist)$"; then
-    cat << EOF
-{
-  "permission": "allow"
-}
-EOF
-    exit 0
+# Get filename
+FILENAME=$(basename "$FILE_PATH" | tr '[:upper:]' '[:lower:]')
+
+# Allow .example, .sample, .template files
+if echo "$FILENAME" | grep -qiE "\.(example|sample|template)$"; then
+    debug "Allowing template file: $FILENAME"
+    PERMISSION="allow"
+# Block sensitive filenames
+elif echo "$FILENAME" | grep -qiE "^\.env$|^\.env\.|credentials|secrets?\."; then
+    PERMISSION="deny"
+    AGENT_MESSAGE="BLOCKED: Sensitive file (environment/credentials). Use .env.example for documentation."
+    debug "BLOCKED: env/credentials file"
+elif echo "$FILENAME" | grep -qiE "^id_rsa|^id_ed25519|^id_ecdsa|\.pem$|\.key$"; then
+    PERMISSION="deny"
+    AGENT_MESSAGE="BLOCKED: Private key file detected."
+    debug "BLOCKED: private key"
+elif echo "$FILENAME" | grep -qiE "^\.npmrc$|^\.pypirc$"; then
+    PERMISSION="deny"
+    AGENT_MESSAGE="BLOCKED: Package registry credentials."
+    debug "BLOCKED: registry credentials"
+# Block sensitive directories
+elif echo "$FILE_PATH" | grep -qiE "\.ssh/|\.gnupg/|\.aws/|\.kube/|\.docker/|\.terraform/"; then
+    PERMISSION="deny"
+    AGENT_MESSAGE="BLOCKED: Sensitive directory (credentials/keys)."
+    debug "BLOCKED: sensitive directory"
 fi
 
-# Check if file matches sensitive patterns
-if echo "$FILE_PATH" | grep -qiE "\.env($|\.)[^.]*$"; then
-    PERMISSION="deny"
-elif echo "$FILE_PATH" | grep -qiE "(credentials|secrets|\.pem|\.key|\.p12|\.pfx)$"; then
-    PERMISSION="deny"
-elif echo "$FILE_PATH" | grep -qiE "id_(rsa|ed25519|dsa|ecdsa)$"; then
-    PERMISSION="deny"
-elif echo "$FILE_PATH" | grep -qiE "\.ssh/config|\.aws/credentials|\.gcloud/|\.azure/"; then
-    PERMISSION="deny"
-elif echo "$FILE_PATH" | grep -qiE "service.*account.*\.json|firebase.*\.json|google.*credentials"; then
-    PERMISSION="deny"
-elif echo "$FILE_PATH" | grep -qiE "\.(npmrc|pypirc|netrc)$"; then
-    PERMISSION="deny"
-elif echo "$FILE_PATH" | grep -qiE "htpasswd|shadow$|passwd$"; then
-    PERMISSION="deny"
-elif echo "$FILE_PATH" | grep -qiE "\.kube/config|kubeconfig"; then
-    PERMISSION="deny"
-fi
+debug "Result: $PERMISSION"
 
 # Output JSON response
 cat << EOF
 {
-  "permission": "$PERMISSION"
+  "permission": "$PERMISSION",
+  "agent_message": "$AGENT_MESSAGE"
 }
 EOF

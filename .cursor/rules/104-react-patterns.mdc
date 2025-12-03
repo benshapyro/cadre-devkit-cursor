@@ -1,0 +1,113 @@
+---
+description: "React component patterns, hooks, and state management"
+globs: ["**/*.tsx", "**/*.jsx", "**/components/**/*", "**/hooks/**/*"]
+---
+
+# React Patterns
+
+## Component Structure
+
+```typescript
+interface Props {
+  title: string;
+  onAction?: () => void;
+}
+
+export function MyComponent({ title, onAction }: Props) {
+  const [state, setState] = useState<string>('');
+
+  useEffect(() => {
+    // Side effects here
+  }, [dependency]);
+
+  return (
+    <div className="container">
+      <h1>{title}</h1>
+    </div>
+  );
+}
+```
+
+## Custom Hooks
+
+```typescript
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+```
+
+## State Management
+
+### Context + useReducer (Medium Complexity)
+```typescript
+interface State {
+  items: Item[];
+  loading: boolean;
+}
+
+type Action =
+  | { type: 'SET_ITEMS'; payload: Item[] }
+  | { type: 'SET_LOADING'; payload: boolean };
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case 'SET_ITEMS':
+      return { ...state, items: action.payload };
+    case 'SET_LOADING':
+      return { ...state, loading: action.payload };
+    default:
+      return state;
+  }
+}
+
+const ItemContext = createContext<{
+  state: State;
+  dispatch: Dispatch<Action>;
+} | null>(null);
+```
+
+### React Query (Server State)
+```typescript
+function useUsers() {
+  return useQuery({
+    queryKey: ['users'],
+    queryFn: () => api.getUsers(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+function useCreateUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: api.createUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
+}
+```
+
+## When to Use What
+
+| Complexity | Solution |
+|------------|----------|
+| Simple local | useState |
+| Complex local | useReducer |
+| Shared UI state | Context + useReducer |
+| Server state | React Query/SWR |
+| Global complex | Zustand/Redux |
+
+## Rules
+
+- One component per file
+- Colocate hooks with components that use them
+- Extract reusable logic into custom hooks
+- Prefer composition over prop drilling
+- Use TypeScript for all components

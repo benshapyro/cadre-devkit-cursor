@@ -1,0 +1,106 @@
+---
+description: "Safe refactoring patterns while maintaining behavior"
+globs: ["**/*.ts", "**/*.tsx", "**/*.py", "**/*.js"]
+---
+
+# Refactoring Patterns
+
+## When to Apply
+
+Use these patterns when:
+- User asks to restructure, extract, rename, or clean up code
+- Code smells detected (duplication, long functions, poor organization)
+- Preparing code for new features
+
+## Safe Refactoring Process
+
+1. **Ensure tests exist** - Don't refactor without test coverage
+2. **Small steps** - One refactor at a time
+3. **Run tests after each change**
+4. **Commit frequently**
+
+## Extract Function
+
+```typescript
+// Before
+function processOrder(order: Order) {
+  // 50 lines of validation
+  // 30 lines of calculation
+  // 20 lines of saving
+}
+
+// After
+function processOrder(order: Order) {
+  validateOrder(order);
+  const total = calculateTotal(order);
+  saveOrder(order, total);
+}
+
+function validateOrder(order: Order) { /* ... */ }
+function calculateTotal(order: Order): number { /* ... */ }
+function saveOrder(order: Order, total: number) { /* ... */ }
+```
+
+## Extract Component (React)
+
+```tsx
+// Before: 200-line component
+function Dashboard() {
+  return (
+    <div>
+      {/* 50 lines of header */}
+      {/* 100 lines of stats */}
+      {/* 50 lines of table */}
+    </div>
+  );
+}
+
+// After: Composed components
+function Dashboard() {
+  return (
+    <div>
+      <DashboardHeader />
+      <StatsGrid />
+      <DataTable />
+    </div>
+  );
+}
+```
+
+## Rename Across Codebase
+
+When renaming:
+1. Use IDE's rename symbol (F2 in VS Code)
+2. Search for string references (comments, tests)
+3. Update imports
+4. Run full test suite
+
+## Replace Conditional with Polymorphism
+
+```typescript
+// Before
+function getArea(shape: Shape) {
+  switch (shape.type) {
+    case 'circle': return Math.PI * shape.radius ** 2;
+    case 'square': return shape.side ** 2;
+  }
+}
+
+// After
+interface Shape {
+  getArea(): number;
+}
+
+class Circle implements Shape {
+  constructor(private radius: number) {}
+  getArea() { return Math.PI * this.radius ** 2; }
+}
+```
+
+## Code Smells to Watch
+
+- **Long functions** (>30 lines) → Extract functions
+- **Duplicate code** → Extract shared function
+- **Long parameter lists** → Use object parameter
+- **Deep nesting** → Early returns, extract functions
+- **Comments explaining what** → Rename to be self-documenting

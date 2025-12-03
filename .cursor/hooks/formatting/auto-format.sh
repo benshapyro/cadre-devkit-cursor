@@ -1,42 +1,65 @@
 #!/bin/bash
-# Auto-format hook for Cursor
-# Runs formatter after file edits
+# Auto-Format Hook for Cursor
+# Runs Prettier/Black after file edits
 #
-# Input: JSON via stdin with { "file_path": "...", "content": "..." }
-# Output: JSON with { "permission": "allow" } (always allow, just format)
+# Input: JSON via stdin with { "path": "..." }
+# Output: JSON with { "message": "..." } (informational)
+#
+# Debug: Set CURSOR_HOOK_DEBUG=1 to enable verbose logging
+
+DEBUG="${CURSOR_HOOK_DEBUG:-0}"
+
+debug() {
+    if [ "$DEBUG" = "1" ]; then
+        echo "[auto-format] $1" >&2
+    fi
+}
 
 # Read JSON input from stdin
 INPUT=$(cat)
-FILE_PATH=$(echo "$INPUT" | grep -o '"file_path"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/"file_path"[[:space:]]*:[[:space:]]*"//' | sed 's/"$//')
+FILE_PATH=$(echo "$INPUT" | grep -o '"path"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/"path"[[:space:]]*:[[:space:]]*"//' | sed 's/"$//')
 
-# Skip if no file path
-if [ -z "$FILE_PATH" ]; then
-    cat << EOF
-{ "permission": "allow" }
-EOF
-    exit 0
-fi
+debug "Checking file: $FILE_PATH"
 
-# Get file extension
+# Get extension
 EXT="${FILE_PATH##*.}"
+MESSAGE=""
 
-# Format based on extension
 case "$EXT" in
-    ts|tsx|js|jsx|json|css|scss|md)
-        # Try prettier if available
+    ts|tsx|js|jsx|json|md|yaml|yml)
+        debug "Running prettier"
         if command -v npx &> /dev/null; then
-            npx prettier --write "$FILE_PATH" 2>/dev/null
+            OUTPUT=$(npx prettier --write "$FILE_PATH" 2>&1)
+            if [ $? -eq 0 ]; then
+                MESSAGE="Formatted with Prettier"
+                debug "Prettier success"
+            else
+                MESSAGE="Prettier failed: $OUTPUT"
+                debug "Prettier failed: $OUTPUT"
+            fi
         fi
         ;;
     py)
-        # Try black if available
+        debug "Running black"
         if command -v black &> /dev/null; then
-            black --line-length 100 "$FILE_PATH" 2>/dev/null
+            OUTPUT=$(black "$FILE_PATH" 2>&1)
+            if [ $? -eq 0 ]; then
+                MESSAGE="Formatted with Black"
+                debug "Black success"
+            else
+                MESSAGE="Black failed: $OUTPUT"
+                debug "Black failed: $OUTPUT"
+            fi
         fi
+        ;;
+    *)
+        debug "No formatter for extension: $EXT"
         ;;
 esac
 
-# Always allow the edit
+# Output JSON response
 cat << EOF
-{ "permission": "allow" }
+{
+  "message": "$MESSAGE"
+}
 EOF

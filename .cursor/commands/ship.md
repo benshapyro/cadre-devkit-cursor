@@ -1,34 +1,32 @@
+---
+description: Commit and ship validated changes
+allowed-tools: Bash(git:*)
+argument-hint: [optional commit message]
+---
+
 # Ship Command
 
 Commit validated changes with proper formatting.
 
-## Usage
-
-Invoke with `@ship [optional commit message]`
-
 ## Pre-Ship Checks
 
 **Verify validation passed:**
-- Has `@validate` been run?
+- Has `/validate` been run?
 - Were there any failures?
 
 **Check git status:**
-```bash
-git status
-```
+!`git status`
 
 ## Gather Information
 
-```bash
-# Staged changes
-git diff --staged --stat
+**Staged changes:**
+!`git diff --staged --stat`
 
-# Recent commits for style reference
-git log --oneline -5
+**Recent commits for style:**
+!`git log --oneline -5`
 
-# Current branch
-git branch --show-current
-```
+**Current branch:**
+!`git branch --show-current`
 
 ## Generate Commit
 
@@ -48,12 +46,14 @@ Body explaining why this change was made.
 - Detail 1
 - Detail 2
 
-Generated with Cursor AI
+🤖 Generated with Claude Code
+
+Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 ### If Argument Provided
 
-Use the provided argument as the commit message subject.
+Use $1 as the commit message subject.
 
 ## Execute Commit
 
@@ -62,24 +62,21 @@ Ask user before staging untracked files.
 
 **Create commit:**
 ```bash
-git commit -m "type(scope): subject
-
-Body of commit message here.
-
-Generated with Cursor AI"
+git commit -m "$(cat <<'EOF'
+[generated message]
+EOF
+)"
 ```
 
 **Verify success:**
-```bash
-git log -1 --oneline
-```
+!`git log -1 --oneline`
 
 ## Report
 
-```markdown
+```
 ## Ship Complete
 
-Commit created successfully
+✅ Commit created successfully
 
 **Commit:** [hash]
 **Message:** [subject]

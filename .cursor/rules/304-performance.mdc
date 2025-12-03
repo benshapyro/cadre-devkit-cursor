@@ -1,0 +1,101 @@
+---
+description: "Performance optimization patterns and profiling guidance"
+globs: ["**/*.ts", "**/*.tsx", "**/*.py"]
+---
+
+# Performance Optimization
+
+## When to Apply
+
+PROACTIVELY optimize when:
+- User mentions slow, laggy, timeout, memory issues
+- Writing loops over large datasets
+- Implementing data processing pipelines
+- Making multiple API calls
+
+## Profiling Tools
+
+### Node.js
+```bash
+node --inspect app.js           # Chrome DevTools
+node --prof app.js              # V8 profiler
+clinic doctor -- node app.js    # Clinic.js
+```
+
+### Python
+```python
+import cProfile
+cProfile.run('main()')
+
+# Or line-by-line:
+pip install line_profiler
+kernprof -l -v script.py
+```
+
+### Database
+```sql
+EXPLAIN ANALYZE SELECT * FROM users WHERE email = 'x';
+```
+
+## Common Issues & Fixes
+
+### N+1 Query Problem
+```typescript
+// BAD: N+1 queries
+const users = await db.users.findMany();
+for (const user of users) {
+  user.posts = await db.posts.findMany({ where: { userId: user.id } });
+}
+
+// GOOD: Single query with join
+const users = await db.users.findMany({
+  include: { posts: true }
+});
+```
+
+### React Re-renders
+```typescript
+// BAD: New object every render
+<Child style={{ color: 'red' }} />
+
+// GOOD: Memoized
+const style = useMemo(() => ({ color: 'red' }), []);
+<Child style={style} />
+
+// GOOD: Use React.memo for expensive components
+const ExpensiveList = React.memo(function ExpensiveList({ items }) {
+  return items.map(item => <Item key={item.id} {...item} />);
+});
+```
+
+### Bundle Size
+```bash
+# Analyze bundle
+npx webpack-bundle-analyzer stats.json
+
+# Code splitting
+const HeavyComponent = lazy(() => import('./HeavyComponent'));
+```
+
+## Database Optimization
+
+### Index Strategy
+```sql
+-- Index columns used in WHERE, JOIN, ORDER BY
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_posts_user_created ON posts(user_id, created_at DESC);
+```
+
+### Query Optimization
+- SELECT only needed columns
+- Use LIMIT for pagination
+- Avoid SELECT * in production
+- Use connection pooling
+
+## Core Web Vitals
+
+| Metric | Target | How to Improve |
+|--------|--------|----------------|
+| LCP | <2.5s | Optimize images, preload critical resources |
+| FID | <100ms | Code split, defer non-critical JS |
+| CLS | <0.1 | Set image dimensions, avoid dynamic content injection |

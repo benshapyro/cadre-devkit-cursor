@@ -1,11 +1,11 @@
 ---
 description: "REST and GraphQL API design patterns and best practices"
-globs: ["**/api/**/*", "**/routes/**/*", "**/endpoints/**/*", "**/controllers/**/*"]
+globs: ["**/api/**/*", "**/routes/**/*", "**/endpoints/**/*", "**/controllers/**/*", "**/graphql/**/*", "**/resolvers/**/*"]
 ---
 
 # API Design Patterns
 
-## URL Structure
+## REST URL Structure
 
 ```
 GET    /api/v1/users              # List
@@ -53,7 +53,7 @@ GET    /api/v1/users/:id/posts    # Nested resource
 }
 ```
 
-## Rules
+## REST Rules
 
 - Use plural nouns for collections (`/users` not `/user`)
 - No verbs in URLs (`/users` not `/getUsers`)
@@ -61,3 +61,66 @@ GET    /api/v1/users/:id/posts    # Nested resource
 - Always validate inputs with schemas (Zod, Pydantic)
 - Implement pagination for lists
 - Version your APIs (`/api/v1/`)
+
+## GraphQL Design
+
+### Schema Structure
+```graphql
+type Query {
+  user(id: ID!): User
+  users(first: Int, after: String): UserConnection!
+}
+
+type Mutation {
+  createUser(input: CreateUserInput!): CreateUserPayload!
+}
+
+type User {
+  id: ID!
+  email: String!
+  profile: Profile
+}
+```
+
+### Resolver Pattern
+```typescript
+const resolvers = {
+  Query: {
+    user: (_, { id }, ctx) => ctx.dataSources.users.getById(id),
+  },
+  User: {
+    profile: (parent, _, ctx) => ctx.dataSources.profiles.getByUserId(parent.id),
+  },
+};
+```
+
+### GraphQL Error Handling
+```typescript
+throw new UserInputError('Invalid email', {
+  invalidArgs: ['email'],
+});
+```
+
+### Relay-Style Pagination
+```graphql
+type UserConnection {
+  edges: [UserEdge!]!
+  pageInfo: PageInfo!
+}
+
+type UserEdge {
+  cursor: String!
+  node: User!
+}
+```
+
+## GraphQL vs REST - When to Use
+
+| Use Case | Prefer |
+|----------|--------|
+| Simple CRUD | REST |
+| Complex nested data | GraphQL |
+| Mobile (bandwidth) | GraphQL |
+| Public API | REST |
+| Microservices | REST |
+| Single frontend team | GraphQL |

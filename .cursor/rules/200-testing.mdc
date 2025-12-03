@@ -1,6 +1,6 @@
 ---
 description: "Testing patterns and standards for Jest and Pytest"
-globs: ["**/*.test.*", "**/*.spec.*", "**/tests/**/*", "**/__tests__/**/*"]
+globs: ["**/*.test.*", "**/*.spec.*", "**/tests/**/*", "**/__tests__/**/*", "**/test_*.py"]
 ---
 
 # Testing Standards
@@ -66,6 +66,55 @@ class TestFunctionName:
 - Mock external dependencies
 - Tests must be independent
 - Use descriptive test names
+
+## Async Testing Patterns
+
+### Jest Async/Await
+```typescript
+it('should fetch user data', async () => {
+  const user = await fetchUser(1);
+  expect(user.name).toBeDefined();
+});
+```
+
+### Jest Timers & Timeouts
+```typescript
+jest.useFakeTimers();
+
+it('should debounce calls', () => {
+  const fn = jest.fn();
+  const debounced = debounce(fn, 100);
+
+  debounced();
+  debounced();
+
+  jest.advanceTimersByTime(100);
+  expect(fn).toHaveBeenCalledTimes(1);
+});
+```
+
+### React Testing Library
+```typescript
+import { render, screen, waitFor } from '@testing-library/react';
+
+it('should load data', async () => {
+  render(<UserProfile id={1} />);
+
+  await waitFor(() => {
+    expect(screen.getByText('John')).toBeInTheDocument();
+  });
+});
+```
+
+### Pytest Async
+```python
+import pytest
+
+@pytest.mark.asyncio
+async def test_async_fetch():
+    result = await fetch_data()
+    assert result is not None
+```
 
 ## Commands
 

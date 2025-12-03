@@ -20,45 +20,48 @@ A comprehensive development kit that brings Cadre's coding standards, workflows,
 
 ### Rules (`.cursor/rules/`)
 
-Rules are automatically applied based on file patterns or descriptions:
+Rules are automatically applied based on file patterns:
 
 | Rule | Type | Description |
 |------|------|-------------|
-| `001-global` | Always On | Core coding standards |
-| `002-confidence` | Always On | Confidence checking protocol |
-| `003-selfcheck` | Always On | Post-implementation validation |
-| `100-api-design` | Pattern | API design patterns |
+| `001-global` | Always | Core coding standards |
+| `002-confidence` | Always | Pre-implementation confidence check |
+| `003-selfcheck` | Always | Post-implementation validation |
+| `100-api-design` | Pattern | REST & GraphQL patterns |
 | `101-code-style` | Pattern | TypeScript/Python style |
 | `102-documentation` | Pattern | Documentation standards |
 | `103-error-handling` | Pattern | Error handling patterns |
-| `200-testing` | Pattern | Testing standards |
-| `300-code-reviewer` | On-Demand | Code review specialist |
-| `301-debugger` | On-Demand | Debugging specialist |
-| `302-git-helper` | On-Demand | Git workflow assistant |
-| `303-doc-researcher` | On-Demand | Documentation researcher |
+| `104-react-patterns` | Pattern | React components & state |
+| `105-tailwind` | Pattern | Tailwind CSS conventions |
+| `106-frontend-design` | Pattern | UI/UX design patterns |
+| `200-testing` | Pattern | Jest/Pytest patterns |
+| `300-code-reviewer` | On-Demand | Code review guidance |
+| `301-debugger` | On-Demand | Debugging assistance |
+| `302-git-helper` | On-Demand | Git workflow help |
+| `303-doc-researcher` | On-Demand | Documentation lookup |
+| `304-performance` | Pattern | Performance optimization |
+| `305-refactoring` | Pattern | Refactoring patterns |
+| `306-spec-discovery` | On-Demand | Requirements clarification |
 
 ### Commands (`.cursor/commands/`)
 
-Invoke commands with `@command-name` in the chat:
+Invoke commands with `@command-name` in chat:
 
-- **`@plan`** - Plan a new feature with proper structure
-- **`@review`** - Review code changes for quality
-- **`@validate`** - Run all validations before shipping
+- **`@plan`** - Plan a new feature
+- **`@review`** - Qualitative code review (patterns, readability, design)
+- **`@validate`** - Quantitative checks (tests, types, lint, build)
 - **`@ship`** - Commit validated changes
 
 ### Hooks (`.cursor/hooks/`)
 
-Hooks using Cursor's lifecycle hook system (v1.7+):
-
 **Security (before events)**
-- **beforeShellExecution** - Blocks destructive shell commands (rm -rf, force push, etc.)
-- **beforeTabFileRead** - Prevents Tab from reading sensitive files (.env, credentials, keys)
-  - Allows `.example`, `.sample`, `.template` files
+- **beforeShellExecution** - Blocks dangerous commands (rm -rf, sudo, force push)
+- **beforeTabFileRead** - Protects sensitive files (.env, keys, .kube/, .docker/)
 
 **Automation (after events)**
-- **afterFileEdit** - Runs Prettier/Black to auto-format edited files
+- **afterFileEdit** - Auto-formats with Prettier/Black
 
-Hooks receive JSON via stdin and return JSON permission responses.
+**Debug mode:** Set `CURSOR_HOOK_DEBUG=1` to see hook output.
 
 ## Workflow
 
@@ -66,67 +69,18 @@ Hooks receive JSON via stdin and return JSON permission responses.
 @plan "feature" → implement → @review → @validate → @ship
 ```
 
-1. **Plan** - Use `@plan` or Cursor's Plan Mode (Shift+Tab)
+1. **Plan** - Use `@plan` for feature planning
 2. **Implement** - Write code with rule guidance
-3. **Review** - Run `@review` for quality check
-4. **Validate** - Run `@validate` for tests/lint/build
+3. **Review** - Run `@review` for qualitative feedback
+4. **Validate** - Run `@validate` for automated checks
 5. **Ship** - Run `@ship` to commit
-
-## Cursor-Specific Features
-
-### Plan Mode
-
-Use Cursor's native Plan Mode (Shift+Tab) for complex features. It provides:
-- Structured planning with checkpoints
-- Automatic context gathering
-- Step-by-step implementation tracking
-
-### Agent Mode
-
-For parallel work:
-- Use git worktrees for multiple features
-- Cursor supports up to 8 parallel agents
-- Each agent can work in its own worktree
-
-### MCP Servers
-
-This devkit is compatible with MCP servers. Add your servers to Cursor settings and they'll work alongside these rules.
-
-## Configuration
-
-### Enable/Disable Rules
-
-Edit the `alwaysApply` field in rule frontmatter:
-```yaml
----
-alwaysApply: false  # Only apply when relevant
----
-```
-
-### Customize Hooks
-
-Edit `hooks.json` to add hook triggers. Cursor hooks use a simple format:
-```json
-{
-  "version": 1,
-  "hooks": {
-    "beforeShellExecution": [
-      { "command": "./my-hook.sh" }
-    ],
-    "afterFileEdit": [
-      { "command": "./format-code.sh" }
-    ]
-  }
-}
-```
-
-Hooks receive JSON via stdin and return JSON responses. See [Cursor Hooks Docs](https://cursor.com/docs/agent/hooks).
 
 ## Documentation
 
 - [Getting Started](docs/getting-started.md)
 - [Components Guide](docs/components.md)
 - [Cursor-Specific Features](docs/cursor-specific.md)
+- [Hook Development](docs/hook-development.md)
 - [FAQ](docs/faq.md)
 
 ## Related

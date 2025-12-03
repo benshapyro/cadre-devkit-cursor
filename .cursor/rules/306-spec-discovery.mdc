@@ -1,0 +1,65 @@
+---
+description: "Clarify vague requirements and create specifications"
+globs: []
+---
+
+# Specification Discovery
+
+## When to Apply
+
+Use this approach when:
+- Requirements are vague, ambiguous, or incomplete
+- Feature lacks clear acceptance criteria
+- Multiple valid interpretations exist
+- Edge cases aren't identified
+
+## Discovery Questions
+
+### Functional Requirements
+- What is the primary user goal?
+- What inputs are required?
+- What outputs are expected?
+- What are the success criteria?
+
+### Edge Cases
+- What happens with empty/null input?
+- What are the min/max boundaries?
+- How should errors be handled?
+- What about concurrent access?
+
+### Non-Functional
+- Performance expectations?
+- Security requirements?
+- Accessibility needs?
+- Mobile/responsive requirements?
+
+## Output Format
+
+After discovery, create a specification:
+
+```markdown
+## Feature: [Name]
+
+### User Story
+As a [user type], I want to [action] so that [benefit].
+
+### Acceptance Criteria
+- [ ] Given [context], when [action], then [result]
+- [ ] Given [context], when [action], then [result]
+
+### Edge Cases
+- Empty input: [behavior]
+- Invalid input: [behavior]
+- Concurrent access: [behavior]
+
+### Out of Scope
+- [Explicitly excluded feature]
+- [Future enhancement]
+```
+
+## Red Flags in Requirements
+
+- "Make it work like [competitor]" without specifics
+- "It should be intuitive" without user flows
+- Missing error handling specs
+- No performance criteria for data-heavy features
