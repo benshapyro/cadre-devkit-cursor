@@ -47,9 +47,11 @@ Rules are automatically applied based on file patterns:
 
 Invoke commands with `@command-name` in chat:
 
-- **`@plan`** - Plan a new feature
+- **`@plan [--tdd]`** - Plan a new feature (--tdd for test-driven)
+- **`@research`** - Deep research with parallel sub-agents
 - **`@review`** - Qualitative code review (patterns, readability, design)
 - **`@validate`** - Quantitative checks (tests, types, lint, build)
+- **`@progress`** - Save research findings as knowledge docs
 - **`@ship`** - Commit validated changes
 
 ### Hooks (`.cursor/hooks/`)
