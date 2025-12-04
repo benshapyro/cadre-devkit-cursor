@@ -50,6 +50,7 @@ Invoke commands with `@command-name` in chat:
 - **`@plan [--tdd]`** - Plan a new feature (--tdd for test-driven)
 - **`@research`** - Deep research with parallel sub-agents
 - **`@review`** - Qualitative code review (patterns, readability, design)
+- **`@slop`** - Remove AI-generated slop (over-comments, defensive overkill, any casts)
 - **`@validate`** - Quantitative checks (tests, types, lint, build)
 - **`@progress`** - Save research findings as knowledge docs
 - **`@ship`** - Commit validated changes
