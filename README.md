@@ -1,94 +1,525 @@
 # Cadre DevKit for Cursor
 
-A comprehensive development kit that brings Cadre's coding standards, workflows, and AI-assisted development patterns to Cursor IDE.
+**Turn Cursor from a helpful intern into a reliable senior engineer.**
+
+---
+
+## What is Cursor?
+
+[Cursor](https://cursor.com) is an AI-powered code editor built on VS Code. It has Claude/GPT built in, can read your codebase, and helps you write code through chat and inline completions.
+
+It's powerful. It's also... unpredictable.
+
+## The Problem
+
+AI coding assistants have a reliability problem:
+
+| Issue | What Happens |
+|-------|--------------|
+| **Hallucination** | "Tests pass!" (they don't) |
+| **Over-engineering** | 50 lines of defensive code for a 3-line function |
+| **AI slop** | Comments everywhere, `any` casts, unnecessary try/catch |
+| **Context loss** | Re-explores the same code every session |
+| **Dangerous commands** | `rm -rf /` is just a typo away |
+| **No planning** | Jumps straight to code without understanding |
+| **Inconsistent quality** | Great on Monday, chaos on Tuesday |
+
+You end up babysitting the AI instead of shipping code.
+
+## The Solution
+
+This devkit adds a **quality and safety layer** to Cursor:
+
+- **Rules** that guide behavior based on what you're working on
+- **Hooks** that actually block dangerous commands (not just warnings)
+- **Structured workflow** from planning to shipping
+- **Evidence-based verification** (no more "it should work")
+- **Research-first pattern** (understand before implementing)
+- **Anti-slop tooling** (removes AI code smell)
+
+It's not a collection of prompts. It's an integrated system.
+
+---
 
 ## Quick Start
 
-1. **Copy to your project:**
-   ```bash
-   cp -r .cursor/ /path/to/your/project/
-   ```
+### 1. Install
 
-2. **Or symlink for global use:**
-   ```bash
-   ln -s /path/to/cadre-devkit-cursor/.cursor ~/.cursor
-   ```
+```bash
+git clone https://github.com/benshapyro/cadre-devkit-cursor.git
+cp -r cadre-devkit-cursor/.cursor /path/to/your/project/
+```
 
-3. **Restart Cursor** to load the new rules and commands.
+Or for global use:
+```bash
+ln -s /path/to/cadre-devkit-cursor/.cursor ~/.cursor
+```
+
+### 2. Restart Cursor
+
+Cursor loads rules from `.cursor/rules/` on startup.
+
+### 3. Use It
+
+In Cursor chat:
+```
+@plan add user authentication
+```
+
+That's it. The devkit is now active.
+
+---
+
+## The Workflow
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                                                                     │
+│  @research ──→ @plan ──→ implement ──→ @slop ──→ @review ──→ @validate ──→ @ship
+│      │          │                        │         │          │        │
+│      │          │                        │         │          │        │
+│   Parallel    Read files              Remove    Qualitative  Tests,   Commit
+│   research    first,                  AI cruft  feedback     types,   with
+│   agents      --tdd for                         on design    lint,    proper
+│               test-first                                     build    message
+│                                                                       │
+│                                          @progress ◄─────────────────┘
+│                                          Save learnings
+│                                          for next time
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+Not every step is required. Typical flows:
+
+- **Quick fix:** implement → `@validate` → `@ship`
+- **New feature:** `@plan` → implement → `@review` → `@validate` → `@ship`
+- **Complex feature:** `@research` → `@plan --tdd` → implement → `@slop` → `@review` → `@validate` → `@progress` → `@ship`
+
+---
+
+## Commands
+
+Invoke commands in Cursor chat with `@command-name`.
+
+### `@research [topic]`
+
+**Deep research before you build.**
+
+Don't let Cursor guess. Have it actually investigate first.
+
+```
+@research how should we implement caching in this project
+```
+
+What happens:
+1. Analyzes your question + project context
+2. Proposes a research plan (e.g., "I'll check existing patterns, framework docs, and community best practices")
+3. You approve or adjust
+4. Gathers information from multiple sources
+5. Synthesizes findings into actionable summary
+
+Why it matters: Research first, implement second. Clean context leads to better code.
+
+---
+
+### `@plan [--tdd] [feature]`
+
+**Plan before you build. No assumptions.**
+
+```
+@plan add rate limiting to the API
+@plan --tdd add rate limiting to the API   # Test-driven mode
+```
+
+What happens:
+1. **Reads the actual files** that will be modified (required, not optional)
+2. Asks clarifying questions if needed
+3. Creates a detailed plan with:
+   - Files to modify (with line numbers for complex changes)
+   - Code snippets showing what will change
+   - Why this approach (and alternatives considered)
+   - Testing strategy
+4. Waits for your approval before implementing
+
+With `--tdd`:
+- Converts requirements to test cases first
+- Plans test file creation before implementation
+- Follows red → green → refactor cycle
+
+---
+
+### `@review`
+
+**Qualitative code review.**
+
+```
+@review
+```
+
+Focuses on:
+- Design patterns and architecture
+- Code readability and maintainability
+- Potential bugs or edge cases
+- Consistency with existing codebase
+
+This is the "does this code make sense?" check.
+
+---
+
+### `@slop`
+
+**Remove AI-generated code smell.**
+
+```
+@slop
+```
+
+Checks the diff against `main` and removes:
+- **Over-commenting** (`// Get the user` before `getUser()`)
+- **Defensive overkill** (null checks when TypeScript already enforces it)
+- **Type escapes** (`as any`, `as unknown as X`)
+- **Inconsistent style** (JSDoc in a file that doesn't use it)
+- **Unnecessary try/catch** (wrapping code that doesn't throw)
+- **Verbose logging** (logging every step)
+
+Outputs a 1-3 sentence summary of what was cleaned.
+
+Why it matters: AI code has tells. This removes them so your code looks like a human wrote it.
+
+---
+
+### `@validate`
+
+**Quantitative checks.**
+
+```
+@validate
+```
+
+Runs:
+- TypeScript type checking (`tsc --noEmit`)
+- Linting (`eslint`, `ruff`)
+- Tests (`jest`, `pytest`)
+- Build verification
+
+This is the "does this code work?" check.
+
+---
+
+### `@progress`
+
+**Save learnings for next time.**
+
+```
+@progress
+```
+
+After a research or exploration session, saves findings to `docs/YYYY-MM-DD-NNN-description.md`.
+
+Example output:
+```markdown
+# Authentication System - Quick Reference
+
+**Date:** 2025-12-04
+**Context:** Researched how to add OAuth
+
+**Key Files:**
+- `src/auth/AuthController.ts:34` - Main entry point
+- `src/auth/SessionManager.ts` - Redis-backed sessions
+
+**Gotchas:**
+- Always call `validateToken()` before `getUser()`
+```
+
+Why it matters: Next time you work on auth, Cursor reads this instead of re-exploring from scratch.
+
+---
+
+### `@ship`
+
+**Commit with proper formatting.**
+
+```
+@ship
+```
+
+What happens:
+1. Runs `git status` and `git diff`
+2. Analyzes changes
+3. Creates a commit message following conventional format (`type(scope): message`)
+4. Commits (doesn't push unless you ask)
+
+---
+
+## What's Running Behind the Scenes
+
+The devkit isn't just commands. There's a lot happening automatically.
+
+### Rules (Context-Aware Guidance)
+
+Rules are `.mdc` files in `.cursor/rules/` that auto-activate based on file patterns or descriptions.
+
+#### Always-On Rules
+
+| Rule | What It Does |
+|------|--------------|
+| `001-global` | Core coding standards, naming conventions, best practices |
+| `002-confidence` | Pre-implementation confidence scoring (0.0-1.0) |
+| `003-selfcheck` | Post-implementation evidence requirements |
+
+#### Pattern-Based Rules
+
+| Rule | Activates When | Provides |
+|------|----------------|----------|
+| `100-api-design` | Working in `/api/`, `/routes/`, `/graphql/` | REST conventions, GraphQL patterns, error formats |
+| `101-code-style` | Any code file | TypeScript/Python style guidelines |
+| `102-documentation` | Creating docs | README structure, API docs format |
+| `103-error-handling` | Implementing error handling | Try/catch patterns, error boundaries |
+| `104-react-patterns` | Working with `.tsx`, `/components/` | Component patterns, hooks, state management |
+| `105-tailwind` | Working with Tailwind | Class organization, layout patterns |
+| `106-frontend-design` | Working on pages/layouts | Hero sections, cards, dashboards |
+| `200-testing` | Working in `/tests/`, `*.test.*` | Jest/Pytest patterns, async testing |
+| `304-performance` | Performance-critical code | Profiling, optimization patterns |
+| `305-refactoring` | Restructuring code | Safe refactoring patterns |
+
+#### On-Demand Rules
+
+| Rule | Purpose |
+|------|---------|
+| `300-code-reviewer` | Deep code review guidance |
+| `301-debugger` | Error analysis and debugging |
+| `302-git-helper` | Git workflow assistance |
+| `303-doc-researcher` | Documentation lookup patterns |
+| `306-spec-discovery` | Requirements clarification |
+
+### Hooks (The Safety Net)
+
+Hooks are shell scripts that run before/after Cursor actions. They can **block execution**.
+
+| Hook | When | What It Does |
+|------|------|--------------|
+| `dangerous-command-blocker.sh` | Before shell commands | Blocks `rm -rf /`, `chmod 777`, force push, `sudo`, etc. |
+| `sensitive-file-guard.sh` | Before file reads | Blocks access to `.env`, credentials, SSH keys, `.kube/`, `.docker/` |
+| `auto-format.sh` | After file edits | Runs Prettier (JS/TS) or Black (Python) |
+
+These aren't warnings. They actually prevent execution.
+
+**Debug mode:** Set `CURSOR_HOOK_DEBUG=1` to see what hooks are doing.
+
+### Quality Gates
+
+Two automated checks enforce quality:
+
+**ConfidenceChecker** (before implementation):
+- Scores confidence 0.0-1.0 across: requirements clarity, technical feasibility, dependencies, test strategy, risk
+- Green (≥0.90): proceed
+- Yellow (0.70-0.89): investigate gaps
+- Red (<0.70): stop and clarify
+
+**SelfCheck** (after implementation):
+- Requires evidence for claims
+- "Tests pass" must show actual test output
+- Blocks phrases like "should work" or "probably fine"
+
+---
+
+## Installation (Detailed)
+
+### Prerequisites
+
+- Cursor installed ([cursor.com](https://cursor.com))
+- Git (for hooks)
+
+### Option 1: Per-Project
+
+Copy the `.cursor` folder to your project:
+
+```bash
+git clone https://github.com/benshapyro/cadre-devkit-cursor.git
+cp -r cadre-devkit-cursor/.cursor /path/to/your/project/
+```
+
+Rules will apply only to that project.
+
+### Option 2: Global (All Projects)
+
+Symlink to your home directory:
+
+```bash
+git clone https://github.com/benshapyro/cadre-devkit-cursor.git
+ln -s $(pwd)/cadre-devkit-cursor/.cursor ~/.cursor
+```
+
+Rules will apply to all projects.
+
+### Configure Hooks
+
+Cursor hooks are configured in `.cursor/hooks/hooks.json`:
+
+```json
+{
+  "version": 1,
+  "hooks": {
+    "beforeShellExecution": [
+      { "command": "./security/dangerous-command-blocker.sh" }
+    ],
+    "beforeTabFileRead": [
+      { "command": "./security/sensitive-file-guard.sh" }
+    ],
+    "afterFileEdit": [
+      { "command": "./formatting/auto-format.sh" }
+    ]
+  }
+}
+```
+
+This is already configured in the devkit. Just copy the `.cursor` folder and restart Cursor.
+
+### Verify Installation
+
+1. Open Cursor in a project with the `.cursor` folder
+2. In chat, type `@plan test feature` - should work
+3. Ask Cursor to run `rm -rf /` - should be blocked
+
+---
+
+## FAQ
+
+### Do I need all of this?
+
+No. The components are modular:
+- Just want safety? Keep only the hooks
+- Just want workflow? Keep only the commands
+- Want everything? Keep it all
+
+### Can I customize the rules?
+
+Yes. Rules are `.mdc` files in `.cursor/rules/`. Edit the frontmatter to change when they activate:
+
+```yaml
+---
+description: "When this rule applies"
+globs: ["**/*.tsx"]  # File patterns
+alwaysApply: false   # Or true for always-on
+---
+```
+
+### Can I customize the blocked commands?
+
+Yes. Edit `.cursor/hooks/security/dangerous-command-blocker.sh` and modify the patterns.
+
+### What if a hook blocks something I actually want to do?
+
+Run the command manually in your terminal, outside of Cursor. The hooks only affect Cursor's actions.
+
+### Does this work with Claude Code?
+
+There's a separate [Claude Code version](https://github.com/benshapyro/cadre-devkit-claude) with the same patterns adapted for Claude Code's system.
+
+### How do I debug hooks?
+
+```bash
+export CURSOR_HOOK_DEBUG=1
+# Now hooks print debug info to stderr
+```
+
+### Can I add my own commands?
+
+Yes. Create a `.md` file in `.cursor/commands/`:
+
+```markdown
+---
+description: What this command does
+---
+
+Instructions for the AI when this command is invoked...
+```
+
+### Can I add my own rules?
+
+Yes. Create a `.mdc` file in `.cursor/rules/`:
+
+```markdown
+---
+description: "When this rule should apply"
+globs: ["**/my-pattern/**/*"]
+---
+
+# Rule Name
+
+Instructions for the AI when working with matching files...
+```
+
+### Where are knowledge docs saved?
+
+`@progress` saves to `docs/YYYY-MM-DD-NNN-description.md` in your project directory.
+
+---
 
 ## What's Included
 
-### Rules (`.cursor/rules/`)
+| Component | Count | Description |
+|-----------|-------|-------------|
+| **Commands** | 7 | `@plan`, `@research`, `@review`, `@slop`, `@validate`, `@progress`, `@ship` |
+| **Rules** | 17 | Always-on (3), pattern-based (9), on-demand (5) |
+| **Hooks** | 3 | Dangerous command blocker, sensitive file guard, auto-format |
 
-Rules are automatically applied based on file patterns:
+---
 
-| Rule | Type | Description |
-|------|------|-------------|
-| `001-global` | Always | Core coding standards |
-| `002-confidence` | Always | Pre-implementation confidence check |
-| `003-selfcheck` | Always | Post-implementation validation |
-| `100-api-design` | Pattern | REST & GraphQL patterns |
-| `101-code-style` | Pattern | TypeScript/Python style |
-| `102-documentation` | Pattern | Documentation standards |
-| `103-error-handling` | Pattern | Error handling patterns |
-| `104-react-patterns` | Pattern | React components & state |
-| `105-tailwind` | Pattern | Tailwind CSS conventions |
-| `106-frontend-design` | Pattern | UI/UX design patterns |
-| `200-testing` | Pattern | Jest/Pytest patterns |
-| `300-code-reviewer` | On-Demand | Code review guidance |
-| `301-debugger` | On-Demand | Debugging assistance |
-| `302-git-helper` | On-Demand | Git workflow help |
-| `303-doc-researcher` | On-Demand | Documentation lookup |
-| `304-performance` | Pattern | Performance optimization |
-| `305-refactoring` | Pattern | Refactoring patterns |
-| `306-spec-discovery` | On-Demand | Requirements clarification |
-
-### Commands (`.cursor/commands/`)
-
-Invoke commands with `@command-name` in chat:
-
-- **`@plan [--tdd]`** - Plan a new feature (--tdd for test-driven)
-- **`@research`** - Deep research with parallel sub-agents
-- **`@review`** - Qualitative code review (patterns, readability, design)
-- **`@slop`** - Remove AI-generated slop (over-comments, defensive overkill, any casts)
-- **`@validate`** - Quantitative checks (tests, types, lint, build)
-- **`@progress`** - Save research findings as knowledge docs
-- **`@ship`** - Commit validated changes
-
-### Hooks (`.cursor/hooks/`)
-
-**Security (before events)**
-- **beforeShellExecution** - Blocks dangerous commands (rm -rf, sudo, force push)
-- **beforeTabFileRead** - Protects sensitive files (.env, keys, .kube/, .docker/)
-
-**Automation (after events)**
-- **afterFileEdit** - Auto-formats with Prettier/Black
-
-**Debug mode:** Set `CURSOR_HOOK_DEBUG=1` to see hook output.
-
-## Workflow
+## Directory Structure
 
 ```
-@plan "feature" → implement → @review → @validate → @ship
+.cursor/
+├── commands/
+│   ├── plan.md
+│   ├── research.md
+│   ├── review.md
+│   ├── slop.md
+│   ├── validate.md
+│   ├── progress.md
+│   └── ship.md
+├── rules/
+│   ├── 001-global.mdc
+│   ├── 002-confidence.mdc
+│   ├── 003-selfcheck.mdc
+│   ├── 100-api-design.mdc
+│   ├── 101-code-style.mdc
+│   ├── ... (more rules)
+└── hooks/
+    ├── hooks.json
+    ├── security/
+    │   ├── dangerous-command-blocker.sh
+    │   └── sensitive-file-guard.sh
+    └── formatting/
+        └── auto-format.sh
 ```
 
-1. **Plan** - Use `@plan` for feature planning
-2. **Implement** - Write code with rule guidance
-3. **Review** - Run `@review` for qualitative feedback
-4. **Validate** - Run `@validate` for automated checks
-5. **Ship** - Run `@ship` to commit
+---
 
 ## Documentation
 
-- [Getting Started](docs/getting-started.md)
-- [Components Guide](docs/components.md)
-- [Cursor-Specific Features](docs/cursor-specific.md)
-- [Hook Development](docs/hook-development.md)
-- [FAQ](docs/faq.md)
+| Doc | What's In It |
+|-----|--------------|
+| [Getting Started](docs/getting-started.md) | Extended tutorial with examples |
+| [Components](docs/components.md) | Deep dive into every component |
+| [Cursor-Specific](docs/cursor-specific.md) | Cursor-specific features and tips |
+| [Hook Development](docs/hook-development.md) | Creating custom hooks |
+| [FAQ](docs/faq.md) | Common questions |
 
-## Related
+---
 
-- [cadre-devkit-claude](https://github.com/benshapyro/cadre-devkit-claude) - Same patterns for Claude Code
+## Contributing
+
+Found a bug? Want to add a feature? PRs welcome.
+
+1. Fork the repo
+2. Create a branch (`git checkout -b feat/my-feature`)
+3. Make changes
+4. Test locally by copying `.cursor/` to a project
+5. Submit a PR
+
+---
 
 ## License
 
