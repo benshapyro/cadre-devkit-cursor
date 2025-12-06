@@ -1,0 +1,83 @@
+---
+description: "Knowledge base for the devkit - commands, skills, hooks, workflows"
+globs: []
+---
+
+# DevKit Knowledge
+
+Interactive help for the Cadre DevKit.
+
+## Architecture
+
+```
+.cursor/
+├── commands/    # Slash commands
+├── rules/       # Domain expertise (skills)
+├── hooks/       # Lifecycle automation
+└── docs/        # Documentation
+```
+
+## Commands
+
+| Command | Purpose |
+|---------|---------|
+| `/greenfield` | New project discovery → SPEC, DESIGN, PLAN |
+| `/plan` | Feature implementation planning |
+| `/research` | Deep parallel research |
+| `/backlog` | Document bugs/enhancements |
+| `/review` | Code quality review |
+| `/validate` | Automated checks |
+| `/ship` | Git commit workflow |
+| `/progress` | Save research as docs |
+| `/slop` | Remove AI artifacts |
+| `/learn` | This help system |
+
+## Workflow
+
+**New Project:**
+```
+/greenfield → /plan → implement → /review → /validate → /ship
+```
+
+**Existing Project:**
+```
+/plan → implement → /review → /validate → /ship
+```
+
+## Rules (Skills)
+
+| Rule | Domain |
+|------|--------|
+| 100-api-design | REST/GraphQL APIs |
+| 104-react-patterns | React components |
+| 105-tailwind | CSS styling |
+| 106-frontend-design | UI/UX |
+| 107-product-discovery | MVP scoping |
+| 108-devkit-knowledge | This knowledge base |
+| 200-testing | Jest/Pytest |
+| 304-performance | Optimization |
+| 305-refactoring | Safe changes |
+| 306-spec-discovery | Requirements |
+
+## Hooks
+
+**Security (blocks dangerous operations):**
+- `dangerous-command-blocker.sh` - Blocks rm -rf, chmod 777, etc.
+- `sensitive-file-guard.sh` - Blocks .env, credentials
+
+**Automation:**
+- `auto-format.sh` - Prettier/Black after edits
+
+**Debug:** Set `CURSOR_HOOK_DEBUG=1`
+
+## Common Questions
+
+**How do I add a command?**
+Create `.cursor/commands/my-command.md` with frontmatter.
+
+**How do I add a rule?**
+Create `.cursor/rules/NNN-name.mdc` with globs.
+
+**Skill vs Agent?**
+- Skills = knowledge (methodology, templates)
+- Agents = workers (do tasks independently)
