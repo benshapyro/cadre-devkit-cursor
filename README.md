@@ -73,21 +73,31 @@ That's it. The devkit is now active.
 ## The Workflow
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                                                                     │
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                                                             │
+│  NEW PROJECT:                                                               │
+│  @greenfield ──→ SPEC.md + DESIGN.md + PLAN.md                              │
+│       │                                                                     │
+│       └──→ @plan [first feature] ──→ ...                                    │
+│                                                                             │
+│  EXISTING PROJECT:                                                          │
 │  @research ──→ @plan ──→ implement ──→ @slop ──→ @review ──→ @validate ──→ @ship
-│      │          │                        │         │          │        │
-│      │          │                        │         │          │        │
-│   Parallel    Read files              Remove    Qualitative  Tests,   Commit
-│   research    first,                  AI cruft  feedback     types,   with
-│   agents      --tdd for                         on design    lint,    proper
-│               test-first                                     build    message
-│                                                                       │
-│                                          @progress ◄─────────────────┘
-│                                          Save learnings
-│                                          for next time
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
+│      │          │                        │         │          │        │    │
+│   Parallel    Read files              Remove    Qualitative  Tests,   Commit│
+│   research    first,                  AI cruft  feedback     types,         │
+│   agents      --tdd for                         on design    lint,          │
+│               test-first                                     build          │
+│                                                                             │
+│                                          @progress ◄────────────────────────┘
+│                                          Save learnings for next time       │
+│                                                                             │
+│  ISSUES:                                                                    │
+│  @backlog ──→ Document bugs/enhancements without implementing               │
+│                                                                             │
+│  HELP:                                                                      │
+│  @learn ──→ Interactive help about Cursor and the devkit                    │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 Not every step is required. Typical flows:
@@ -95,12 +105,56 @@ Not every step is required. Typical flows:
 - **Quick fix:** implement → `@validate` → `@ship`
 - **New feature:** `@plan` → implement → `@review` → `@validate` → `@ship`
 - **Complex feature:** `@research` → `@plan --tdd` → implement → `@slop` → `@review` → `@validate` → `@progress` → `@ship`
+- **New project:** `@greenfield` → `@plan [first feature]` → implement → ship
 
 ---
 
 ## Commands
 
 Invoke commands in Cursor chat with `@command-name`.
+
+### `@greenfield [idea]`
+
+**Start a new project from scratch.**
+
+Don't jump into code. Discover what you're actually building first.
+
+```
+@greenfield I want to build a tool that helps developers track learning progress
+```
+
+What happens:
+1. Interactive discovery through 6 phases (vision, problem, users, technical, validation, scoping)
+2. Uses Socratic questioning to uncover requirements you haven't thought of
+3. Creates three documents in `docs/`:
+   - `SPEC.md` - What to build (requirements, users, success criteria)
+   - `DESIGN.md` - How to build it (architecture, technology choices)
+   - `PLAN.md` - Implementation roadmap (phases, tasks)
+4. Suggests first feature to implement with `@plan`
+
+Why it matters: Most projects fail from unclear requirements, not bad code. This forces clarity before you write a single line.
+
+---
+
+### `@learn [question]`
+
+**Interactive help about Cursor and the devkit.**
+
+```
+@learn
+@learn how do rules work?
+@learn what's the difference between @plan and @greenfield?
+@learn what rules are available?
+```
+
+What happens:
+- No question: Shows welcome message with topic list
+- Devkit question: Reads actual files and explains
+- Cursor question: Routes to appropriate documentation
+
+Why it matters: Self-service onboarding. Learn the system without reading all the docs.
+
+---
 
 ### `@research [topic]`
 
@@ -146,6 +200,28 @@ With `--tdd`:
 - Converts requirements to test cases first
 - Plans test file creation before implementation
 - Follows red → green → refactor cycle
+
+---
+
+### `@backlog [bug|enh|ux] [description]`
+
+**Document issues without implementing them.**
+
+```
+@backlog bug the login form doesn't validate email format
+@backlog enh add dark mode support
+@backlog ux the submit button is hard to find
+```
+
+What happens:
+1. Classifies as BUG, ENH (enhancement), or UX improvement
+2. Investigates codebase to find root cause / affected files
+3. Researches best practices (for enhancements)
+4. Takes screenshots (for UX issues, if Playwright available)
+5. Creates detailed entry in `BACKLOG.md`
+6. Asks for next item (interactive loop)
+
+Why it matters: Capture issues when you notice them. Implement later when you have time.
 
 ---
 
@@ -279,6 +355,8 @@ Rules are `.mdc` files in `.cursor/rules/` that auto-activate based on file patt
 | `104-react-patterns` | Working with `.tsx`, `/components/` | Component patterns, hooks, state management |
 | `105-tailwind` | Working with Tailwind | Class organization, layout patterns |
 | `106-frontend-design` | Working on pages/layouts | Hero sections, cards, dashboards |
+| `107-product-discovery` | New projects, greenfield | MVP scoping, requirements discovery |
+| `108-devkit-knowledge` | Learning about the devkit | Commands, rules, hooks, workflows |
 | `200-testing` | Working in `/tests/`, `*.test.*` | Jest/Pytest patterns, async testing |
 | `304-performance` | Performance-critical code | Profiling, optimization patterns |
 | `305-refactoring` | Restructuring code | Safe refactoring patterns |
@@ -455,14 +533,18 @@ Instructions for the AI when working with matching files...
 
 `@progress` saves to `docs/YYYY-MM-DD-NNN-description.md` in your project directory.
 
+### How do I get help?
+
+Run `@learn` for interactive help about the devkit and Cursor.
+
 ---
 
 ## What's Included
 
 | Component | Count | Description |
 |-----------|-------|-------------|
-| **Commands** | 7 | `@plan`, `@research`, `@review`, `@slop`, `@validate`, `@progress`, `@ship` |
-| **Rules** | 17 | Always-on (3), pattern-based (9), on-demand (5) |
+| **Commands** | 10 | `@greenfield`, `@learn`, `@plan`, `@research`, `@backlog`, `@review`, `@slop`, `@validate`, `@progress`, `@ship` |
+| **Rules** | 19 | Always-on (3), pattern-based (11), on-demand (5) |
 | **Hooks** | 3 | Dangerous command blocker, sensitive file guard, auto-format |
 
 ---
@@ -472,8 +554,11 @@ Instructions for the AI when working with matching files...
 ```
 .cursor/
 ├── commands/
+│   ├── greenfield.md
+│   ├── learn.md
 │   ├── plan.md
 │   ├── research.md
+│   ├── backlog.md
 │   ├── review.md
 │   ├── slop.md
 │   ├── validate.md
@@ -485,6 +570,8 @@ Instructions for the AI when working with matching files...
 │   ├── 003-selfcheck.mdc
 │   ├── 100-api-design.mdc
 │   ├── 101-code-style.mdc
+│   ├── 107-product-discovery.mdc
+│   ├── 108-devkit-knowledge.mdc
 │   ├── ... (more rules)
 └── hooks/
     ├── hooks.json
