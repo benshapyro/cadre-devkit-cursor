@@ -1,0 +1,57 @@
+---
+description: "MVP scoping and requirements discovery for new projects"
+globs: ["**/SPEC.md", "**/DESIGN.md", "**/docs/SPEC.md", "**/docs/DESIGN.md"]
+---
+
+# Product Discovery
+
+Transform vague ideas into actionable specifications.
+
+## Core Methodology
+
+**Five Whys** - Ask "Why?" 5 times to reach root motivations
+**MECE** - Cover all aspects without overlap (users, features, constraints)
+**Socratic Probing** - Never accept surface answers, ask for examples
+
+## Discovery Phases
+
+### 1. Vision
+- "What moment made you think 'someone should build this'?"
+- "Fast forward one year - what changed in the world?"
+
+### 2. Core Problem
+- "If you could only solve ONE aspect, which unlocks the most value?"
+- "What's the smallest thing that would make one person grateful?"
+
+### 3. Users
+- "Think of one specific person who needs this. What's their story?"
+- "Which user type would be easiest to satisfy?"
+
+### 4. Technical
+- "What could you hardcode for MVP that becomes dynamic later?"
+- "What existing tools could you leverage?"
+
+### 5. Validation
+- "How would you know MVP is working? What number?"
+- "What feedback would make you pivot?"
+
+## Scoping (NOT time-based)
+
+| Scope | Definition |
+|-------|------------|
+| **Core MVP** | ONE problem, ONE user type |
+| **Expanded MVP** | Multiple features, single user focus |
+| **Full Vision** | All features, all users |
+
+## Output Documents
+
+Create in `docs/`:
+- `SPEC.md` - Requirements, users, success criteria
+- `DESIGN.md` - Architecture, technology choices
+- `PLAN.md` - Implementation roadmap
+
+## When Stuck
+
+- **Offer contrasts**: "Would you rather X or Y?"
+- **Break it down**: "Let's start with just the first step"
+- **Clarify vague terms**: "What does 'fast' specifically mean?"
